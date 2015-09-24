@@ -1,0 +1,3 @@
+# Hypergraph
+
+A library for hypergraphs and hypergraph algorithms. Currently in early development, more to comer soon...
