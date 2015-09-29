@@ -44,7 +44,28 @@ class POMSet (object):
 			self.order = np.zeros((self.size, self.size), dtype=np.int8)
 
 	def weakly_above(self, element, element_index=0):
-		'''
+		'''Get all elements of the POMSet that are weakly above `element`.
+
+		Here weakly above means elements that are either strictly greater than 
+		or unrelated to `element` in the POSET order.
+
+		Parameters
+		----------
+
+		element : object
+			The element of the POMSet to find elements above.
+
+		element_index : int, optional
+			In case there are multiple instances of element in the POMSet
+			labels, the index of the element to find elements above;
+			e.g. `element_index=3` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		labels_above : numpy ndarray
+			A numpy array of label objects weakly above `element`
 		'''
 		label_index = np.where(self.labels == element)[0][element_index]
 		return self.labels[~(self.order[label_index] == -1)]
@@ -54,10 +75,56 @@ class POMSet (object):
 		return np.where[(self.order[label_index] == 1)][0]
 
 	def strictly_above(self, element, element_index=0):
+		'''Get all elements of the POMSet that are strictly above `element`.
+
+		Here weakly above means elements that are strictly greater than 
+		`element` in the POSET order.
+
+		Parameters
+		----------
+
+		element : object
+			The element of the POMSet to find elements above.
+
+		element_index : int, optional
+			In case there are multiple instances of element in the POMSet
+			labels, the index of the element to find elements above;
+			e.g. `element_index=3` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		labels_above : numpy ndarray
+			A numpy array of label objects strictly above `element`
+		'''
 		label_index = np.where(self.labels == element)[0][element_index]
 		return self.labels[(self.order[label_index] == 1)]
 
 	def weakly_below(self, element, element_index=0):
+		'''Get all elements of the POMSet that are weakly below `element`.
+
+		Here weakly above means elements that are either strictly less than 
+		or unrelated to `element` in the POSET order.
+
+		Parameters
+		----------
+
+		element : object
+			The element of the POMSet to find elements below.
+
+		element_index : int, optional
+			In case there are multiple instances of element in the POMSet
+			labels, the index of the element to find elements below;
+			e.g. `element_index=3` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		labels_below : numpy ndarray
+			A numpy array of label objects weakly below `element`
+		'''
 		label_index = np.where(self.labels == element)[0][element_index]
 		return self.labels[~(self.order[label_index] == 1)]
 
@@ -66,30 +133,184 @@ class POMSet (object):
 		return np.where[(self.order[label_index] == -1)]
 
 	def strictly_below(self, element, element_index=0):
+		'''Get all elements of the POMSet that are strictly below `element`.
+
+		Here weakly above means elements that are strictly less than 
+		`element` in the POSET order.
+
+		Parameters
+		----------
+
+		element : object
+			The element of the POMSet to find elements below.
+
+		element_index : int, optional
+			In case there are multiple instances of element in the POMSet
+			labels, the index of the element to find elements below;
+			e.g. `element_index=3` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		labels_below : numpy ndarray
+			A numpy array of label objects strictly below `element`
+		'''
 		label_index = np.where(self.labels == element)[0][element_index]
 		return self.labels[(self.order[label_index] == -1)]
 
 	def weakly_greater_than(self, element1, element2, element1_index=0, element2_index=0):
+		'''Report whether `element1` is weakly greater than `element2`.
+
+		In this case weakly greater than means not strictly less than.
+
+		Parameters
+		----------
+
+		element1 : object
+			The first element in the comparison
+
+		element2 : object
+			The second element in the comparison
+
+		element1_index : int, optional
+			In case there are multiple instances of element1 in the POMSet
+			labels, the index of the element1 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		element2_index : int, optional
+			In case there are multiple instances of element2 in the POMSet
+			labels, the index of the element2 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		weakly_greater_than : boolean
+			Whether `element1` is weakly greater than `element2`
+		'''
 		label_index1 = np.where(self.labels == element1)[0][element_index1]
 		label_index2 = np.where(self.labels == element2)[0][element_index2]
 		return self.order[label_index1, label_index2] >= 0
 
 	def strictly_greater_than(self, element1, element2, element1_index=0, element2_index=0):
+		'''Report whether `element1` is strictly greater than `element2`.
+
+		Parameters
+		----------
+
+		element1 : object
+			The first element in the comparison
+
+		element2 : object
+			The second element in the comparison
+
+		element1_index : int, optional
+			In case there are multiple instances of element1 in the POMSet
+			labels, the index of the element1 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		element2_index : int, optional
+			In case there are multiple instances of element2 in the POMSet
+			labels, the index of the element2 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		strictly_greater_than : boolean
+			Whether `element1` is strictly greater than `element2`
+		'''
 		label_index1 = np.where(self.labels == element1)[0][element_index1]
 		label_index2 = np.where(self.labels == element2)[0][element_index2]
 		return self.order[label_index1, label_index2] > 0
 
 	def weakly_less_than(self, element1, element2, element1_index=0, element2_index=0):
+		'''Report whether `element1` is weakly less than `element2`.
+
+		In this case weakly less than means not strictly greater than.
+
+		Parameters
+		----------
+
+		element1 : object
+			The first element in the comparison
+
+		element2 : object
+			The second element in the comparison
+
+		element1_index : int, optional
+			In case there are multiple instances of element1 in the POMSet
+			labels, the index of the element1 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		element2_index : int, optional
+			In case there are multiple instances of element2 in the POMSet
+			labels, the index of the element2 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		weakly_less_than : boolean
+			Whether `element1` is weakly less than `element2`
+		'''
 		label_index1 = np.where(self.labels == element1)[0][element_index1]
 		label_index2 = np.where(self.labels == element2)[0][element_index2]
 		return self.order[label_index1, label_index2] <= 0
 
 	def strictly_less_than(self, element1, element2, element1_index=0, element2_index=0):
+		'''Report whether `element1` is strictly less than `element2`.
+
+		Parameters
+		----------
+
+		element1 : object
+			The first element in the comparison
+
+		element2 : object
+			The second element in the comparison
+
+		element1_index : int, optional
+			In case there are multiple instances of element1 in the POMSet
+			labels, the index of the element1 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		element2_index : int, optional
+			In case there are multiple instances of element2 in the POMSet
+			labels, the index of the element2 ;
+			e.g. `element_index=13` will select the third copy of element
+			within the label list. (default 0)
+
+		Returns
+		-------
+
+		strictly_less_than : boolean
+			Whether `element1` is strictly less than `element2`
+		'''
 		label_index1 = np.where(self.labels == element1)[0][element_index1]
 		label_index2 = np.where(self.labels == element2)[0][element_index2]
 		return self.order[label_index1, label_index2] < 0
 
 	def add_label(self, new_label):
+		'''Add a new element to the POMSet. The added element will be
+		unrelated to any other elements in the POMSet; to induce relations
+		after using this method use the `add_dependency` or 
+		`add_dependencies_from` functions.
+
+		Parameters
+		----------
+
+		new_label : object
+			The new element to add to the POMSet.
+		'''
 		new_label_array = np.empty(self.size + 1, dtype=object)
 		new_label_array[:-1] = self.labels
 		del self.labels
@@ -106,6 +327,32 @@ class POMSet (object):
 		self.order = new_order
 
 	def add_dependency(self, from_label, to_label, from_index=0, to_index=0):
+		'''Add a new dependency relation to the POMSet. This states that
+		`from_label` is strictly less than `to_label`. All other relations
+		implicit from this will then be inferred and also added.
+
+		Parameters
+		----------
+
+		from_label : object
+			The lesser element of the new relation to add
+
+		to_label : object
+			The greater element of the new relation to add
+
+		from_index : int, optional
+			In case there are multiple instances of from_element in the POMSet
+			labels, the index of the from_element ;
+			e.g. `element_index=13` will select the third copy of from_element
+			within the label list. (default 0)
+
+		to_index : int, optional
+			In case there are multiple instances of to_element in the POMSet
+			labels, the index of the to_element ;
+			e.g. `element_index=13` will select the third copy of to_element
+			within the label list. (default 0)
+
+		'''
 		from_label_index = np.where(self.labels == from_label)[0][from_index]
 		to_label_index = np.where(self.labels == to_label)[0][to_index]
 
