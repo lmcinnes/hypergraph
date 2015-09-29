@@ -1,15 +1,5 @@
 import numpy as np
 
-def _order_bfs(order, direction='up'):
-	if direction == 'up':
-		
-		pass
-	elif direction == 'down':
-
-		pass
-	else:
-		raise ValueError('bfs direction must be either "up" or "down"')
-
 class POMSet (object):
 	'''A Partially Ordered Multiset.
 
@@ -361,3 +351,45 @@ class POMSet (object):
 
 		self.order[from_label_index, self._indices_strictly_above(to_label, to_index)] = -1
 		self.order[to_label_index, self._indices_strictly_below(from_label, from_index)] = 1
+
+	def add_labels_from(self, new_label_list):
+		'''
+		Add a number of new labels from an iterable of new labels.
+		The added elements will be unrelated to any other elements
+		in the POMSet. To add relations use the `add_dependency` or 
+		`add_dependencies_from` functions.
+
+		Parameters
+		----------
+
+		new_label_list : iterable
+			The new labels to be added
+		'''
+		labels_to_add = np.array(new_label_list)
+		self.labels = np.hstack((self.labels, labels_to_add))
+
+		self.size = len(self.labels)
+		self.support.update(new_label)
+		self.cardinality = len(self.support)
+
+		new_order = np.zeros((self.size, self.size), dtype=np.int8)
+		new_order[:-1][:-1] = self.order
+		del self.order
+		self.order = new_order
+
+	def add_dependencies_from(self, new_dependencies_list):
+		'''Add a number of new dependency relations from an iterable
+		of dependencies. Each element of the iterable should be a tuple
+		of 4 items:
+			`(from_label, from_index, to_label, to_index)`
+		See the documentation for `add_dependency` for more detail.
+
+		Parameters
+		----------
+
+		new_dependencies_list : iterable
+			The new dependences to be added, each dependency specified
+			as a 4-tuple of `(from_label, from_index, to_label, to_index)`.
+		'''
+		pass
+
