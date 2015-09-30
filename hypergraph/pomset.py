@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+hypergraph.pomset: Partially Ordered Multisets for use in directed 
+hyperedges (and directed hypernodes).
+"""
+# Author: Leland McInnes <leland.mcinnes@gmail.com>
+#
+# License: GPL v2 
 import numpy as np
 
 class POMSet (object):
@@ -166,13 +174,13 @@ class POMSet (object):
 		element1_index : int, optional
 			In case there are multiple instances of element1 in the POMSet
 			labels, the index of the element1 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element1_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		element2_index : int, optional
 			In case there are multiple instances of element2 in the POMSet
 			labels, the index of the element2 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element2_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		Returns
@@ -200,13 +208,13 @@ class POMSet (object):
 		element1_index : int, optional
 			In case there are multiple instances of element1 in the POMSet
 			labels, the index of the element1 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element1_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		element2_index : int, optional
 			In case there are multiple instances of element2 in the POMSet
 			labels, the index of the element2 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element2_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		Returns
@@ -236,13 +244,13 @@ class POMSet (object):
 		element1_index : int, optional
 			In case there are multiple instances of element1 in the POMSet
 			labels, the index of the element1 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element1_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		element2_index : int, optional
 			In case there are multiple instances of element2 in the POMSet
 			labels, the index of the element2 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element2_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		Returns
@@ -270,13 +278,13 @@ class POMSet (object):
 		element1_index : int, optional
 			In case there are multiple instances of element1 in the POMSet
 			labels, the index of the element1 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element1_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		element2_index : int, optional
 			In case there are multiple instances of element2 in the POMSet
 			labels, the index of the element2 ;
-			e.g. `element_index=13` will select the third copy of element
+			e.g. `element2_index=3` will select the third copy of element
 			within the label list. (default 0)
 
 		Returns
@@ -333,13 +341,13 @@ class POMSet (object):
 		from_index : int, optional
 			In case there are multiple instances of from_element in the POMSet
 			labels, the index of the from_element ;
-			e.g. `element_index=13` will select the third copy of from_element
+			e.g. `from_index=3` will select the third copy of from_element
 			within the label list. (default 0)
 
 		to_index : int, optional
 			In case there are multiple instances of to_element in the POMSet
 			labels, the index of the to_element ;
-			e.g. `element_index=13` will select the third copy of to_element
+			e.g. `to_index=3` will select the third copy of to_element
 			within the label list. (default 0)
 
 		'''
@@ -391,5 +399,60 @@ class POMSet (object):
 			The new dependences to be added, each dependency specified
 			as a 4-tuple of `(from_label, from_index, to_label, to_index)`.
 		'''
-		pass
+		for args in new_dependencies_list:
+			self.add_dependency(args[0], args[2], args[1], args[3])
+
+	def remove_label(self, label_to_remove, label_index=0):
+		'''Remove a label from the POMSet, updating dependency 
+		relations accordingly in the POMSet order.
+
+		Parameters
+		----------
+
+		label_to_remove : object
+			The label to be removed from the POMSet.
+
+		label_index : int, optional
+			In case there are multiple instances of label_to_remove in the POMSet
+			labels, the index of the label_to_remove ;
+			e.g. `element_index=3` will select the third copy of label_to_remove
+			within the label list. (default 0)
+		'''
+		label_to_remove_index = np.where(self.labels == label_to_remove)[0][label_index]
+		selection = range(label_to_remove_index) + \
+					range(label_to_remove_index + 1, self.order.shape[0])
+
+		self.order = self.order[selection, :][:, selection]
+		self.labels = self.labels[selection]
+
+	def remove_dependency(self, from_label, to_label, from_index=0, to_index=0):
+		'''Remove a dependency from the POMSet.
+
+		Parameters
+		----------
+
+		from_label : object
+			The lower label of the dependency to be removed.
+
+		to_label : object
+			The upper label of the dependency to be removed.
+
+		from_index : int, optional
+			In case there are multiple instances of from_element in the POMSet
+			labels, the index of the from_element ;
+			e.g. `from_index=3` will select the third copy of from_element
+			within the label list. (default 0)
+
+		to_index : int, optional
+			In case there are multiple instances of to_element in the POMSet
+			labels, the index of the to_element ;
+			e.g. `to_index=3` will select the third copy of to_element
+			within the label list. (default 0)
+		'''
+		from_label_index = np.where(self.labels == from_label)[0][from_index]
+		to_label_index = np.where(self.labels == to_label)[0][to_index]
+
+		self.order[from_label_index, to_label_index] = 0
+		self.order[to_label_index, from_label_index] = 0
+
 
