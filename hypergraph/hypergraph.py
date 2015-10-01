@@ -11,13 +11,19 @@ import itertools as itr
 
 class Hypergraph (object):
 
-	nodes = {}
-	edges = {}
+	node = {}
+	edge = {}
 
 	def __init__(self, nodes=None):
 		if nodes is not None:
 			for node in nodes:
 				self.nodes[node] = POMSet([])
+
+        def nodes(self):
+                return self.node.keys()
+
+        def edges(self):
+                return self.edge.keys()
 
 	def add_node(self, new_node):
 		self.nodes[new_node] = POMSet([])
