@@ -9,6 +9,8 @@ hypergraph.hypergraph: Basic hypergraph class.
 import networkx as nx
 import itertools as itr
 
+from collections import Counter, defaultdict
+
 class Hypergraph (object):
 
     node = {}
@@ -167,3 +169,28 @@ class Hypergraph (object):
                         result.add_edge(n1, n2)
 
         return result
+
+    def undirected_size_distribution_matrix(self):
+    	'''Return a matrix of size distributions (per node) where the
+    	(i, j)th entry is number of nodes with i edges of size j
+    	incident on the node.
+
+    	Returns
+    	-------
+
+    	dist_matrix : numpy ndarray
+    		The size distribution matrix
+    	'''
+    	result_dict = defaultdict(int)
+    	for node in self.nodes():
+    		sizes = Counter(self.edge[e].size for e in self.node[node].labels)
+    		for i in sizes:
+    			j = sizes[i]
+    			result_dict[(i,j)] += 1
+
+    	matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+    	result = np.zeros(matrix_dimensions, dtype=int)
+    	for (i, j), count in result_dict.items():
+    		result[i,j] = count
+
+    	return result
