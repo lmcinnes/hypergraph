@@ -58,6 +58,14 @@ class POMSet (object):
         '''
         return np.sum(self.labels == element)
 
+    def reverse_order(self):
+    	'''Perform an in place order reversal on the POMSet.
+
+    	Thus if previously i > j, this method will result in
+    	i < j in the POMSet order.
+    	'''
+    	self.order = self.order.T
+
     def weakly_above(self, element, element_index=0):
         '''Get all elements of the POMSet that are weakly above `element`.
 
