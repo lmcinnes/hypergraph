@@ -5,7 +5,7 @@ hyperedges (and directed hypernodes).
 """
 # Author: Leland McInnes <leland.mcinnes@gmail.com>
 #
-# License: GPL v2 
+# License: LGPL v2 
 import numpy as np
 
 class POMSet (object):

@@ -4,7 +4,7 @@ hypergraph.hypergraph: Basic hypergraph class.
 """
 # Author: Leland McInnes <leland.mcinnes@gmail.com>
 #
-# License: GPL v2 
+# License: LGPL v2 
 
 import networkx as nx
 import itertools as itr
