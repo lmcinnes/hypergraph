@@ -38,8 +38,13 @@ class POMSet (object):
         if order is not None:
             assert(order.shape[0] == len(self.labels))
             self.order = order
+            if np.all(self.order == 0):
+                self._is_unordered = True
+            else:
+                self._is_unordered = False
         else:
             self.order = np.zeros((self.size, self.size), dtype=np.int8)
+            self._is_unordered = True
 
     def multiplicity(self, element):
         '''Return the number of occurences of `element` in the POMSet.
@@ -64,7 +69,8 @@ class POMSet (object):
     	Thus if previously i > j, this method will result in
     	i < j in the POMSet order.
     	'''
-    	self.order = self.order.T
+        if not self._is_unordered:
+            self.order = self.order.T
 
     def weakly_above(self, element, element_index=0):
         '''Get all elements of the POMSet that are weakly above `element`.
@@ -90,10 +96,14 @@ class POMSet (object):
         labels_above : numpy ndarray
             A numpy array of label objects weakly above `element`
         '''
+        if self._is_unordered:
+            return self.labels.copy()
         label_index = np.where(self.labels == element)[0][element_index]
         return self.labels[~(self.order[label_index] == -1)]
 
     def _indices_strictly_above(self, element, element_index=0):
+        if self._is_unordered:
+            return np.array([], dtype=int)
         label_index = np.where(self.labels == element)[0][element_index]
         return np.where[(self.order[label_index] == 1)][0]
 
@@ -121,6 +131,8 @@ class POMSet (object):
         labels_above : numpy ndarray
             A numpy array of label objects strictly above `element`
         '''
+        if self._is_unordered:
+            return np.array([], dtype=object)
         label_index = np.where(self.labels == element)[0][element_index]
         return self.labels[(self.order[label_index] == 1)]
 
@@ -148,10 +160,14 @@ class POMSet (object):
         labels_below : numpy ndarray
             A numpy array of label objects weakly below `element`
         '''
+        if self._is_unordered:
+            return self.labels.copy()
         label_index = np.where(self.labels == element)[0][element_index]
         return self.labels[~(self.order[label_index] == 1)]
 
     def _indices_strictly_below(self, element, element_index=0):
+        if self._is_unordered:
+            return np.array([], dtype=int)
         label_index = np.where(self.labels == element)[0][element_index]
         return np.where[(self.order[label_index] == -1)]
 
@@ -179,6 +195,8 @@ class POMSet (object):
         labels_below : numpy ndarray
             A numpy array of label objects strictly below `element`
         '''
+        if self._is_unordered:
+            return np.array([], dtype=object)
         label_index = np.where(self.labels == element)[0][element_index]
         return self.labels[(self.order[label_index] == -1)]
 
@@ -214,6 +232,8 @@ class POMSet (object):
         weakly_greater_than : boolean
             Whether `element1` is weakly greater than `element2`
         '''
+        if self._is_unordered:
+            return True
         label_index1 = np.where(self.labels == element1)[0][element_index1]
         label_index2 = np.where(self.labels == element2)[0][element_index2]
         return self.order[label_index1, label_index2] >= 0
@@ -248,6 +268,8 @@ class POMSet (object):
         strictly_greater_than : boolean
             Whether `element1` is strictly greater than `element2`
         '''
+        if self._is_unordered:
+            return False
         label_index1 = np.where(self.labels == element1)[0][element_index1]
         label_index2 = np.where(self.labels == element2)[0][element_index2]
         return self.order[label_index1, label_index2] > 0
@@ -284,6 +306,8 @@ class POMSet (object):
         weakly_less_than : boolean
             Whether `element1` is weakly less than `element2`
         '''
+        if self._is_unordered:
+            return True
         label_index1 = np.where(self.labels == element1)[0][element_index1]
         label_index2 = np.where(self.labels == element2)[0][element_index2]
         return self.order[label_index1, label_index2] <= 0
@@ -318,6 +342,8 @@ class POMSet (object):
         strictly_less_than : boolean
             Whether `element1` is strictly less than `element2`
         '''
+        if self._is_unordered:
+            return False
         label_index1 = np.where(self.labels == element1)[0][element_index1]
         label_index2 = np.where(self.labels == element2)[0][element_index2]
         return self.order[label_index1, label_index2] < 0
@@ -384,6 +410,7 @@ class POMSet (object):
 
         self.order[from_label_index, self._indices_strictly_above(to_label, to_index)] = -1
         self.order[to_label_index, self._indices_strictly_below(from_label, from_index)] = 1
+        self._is_unordered = False
 
     def add_labels_from(self, new_label_list):
         '''
@@ -479,5 +506,8 @@ class POMSet (object):
 
         self.order[from_label_index, to_label_index] = 0
         self.order[to_label_index, from_label_index] = 0
+
+        if np.all(self.order == 0):
+            self._is_unordered = True
 
 
