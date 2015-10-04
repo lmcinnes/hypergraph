@@ -31,7 +31,7 @@ class Hypergraph (object):
         '''Return a list (or iterable in python3) of the edge
         objects of the hypergraph.
         '''
-         return self.edge.keys()
+        return self.edge.keys()
 
     def add_node(self, new_node):
         '''Add a new node to the hypergraph.
