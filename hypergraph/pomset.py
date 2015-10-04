@@ -8,6 +8,36 @@ hyperedges (and directed hypernodes).
 # License: LGPL v2 
 import numpy as np
 
+def _is_bipartitite_order(order):
+    for row in order:
+        if np.any(row == -1) and any(row == 1):
+            return False
+        elif np.all(row == 0):
+            return False
+
+    return True
+
+def _get_bipartition(order):
+    result = [[],[]]
+    for index, row in enumerate(order):
+        if np.any(row == -1):
+            result[0].append(index)
+        elif np.any(row == 1):
+            result[1].append(index)
+        else:
+            raise ValueError("Order must be bipartite")
+
+    return result
+
+def _make_order_from_bipartition(bipartition):
+    order_size = len(bipartition[0]) + len(bipartition[1])
+    result = np.zeros((order_size, order_size), dtype=np.int8)
+    for index in bipartition[0]:
+        result[index, bipartition[1]] = -1
+        result[bipartition[1], index] = 1
+
+    return result
+
 class POMSet (object):
     '''A Partially Ordered Multiset.
 
@@ -24,7 +54,7 @@ class POMSet (object):
     The `cardinality` of a POMSet is the size of the support.
     '''
 
-    def __init__(self, labels=None, order=None):
+    def __init__(self, labels=None, order=None, bipartition=None):
 
         if labels is not None:
             self.labels = np.array(labels, dtype=object)
@@ -35,13 +65,28 @@ class POMSet (object):
         self.support = set(self.labels)
         self.cardinality = len(self.support)
 
-        if order is not None:
+        self._is_unordered = False
+        self._is_bipartitite = False
+        self._bipartition = None
+
+        if bipartition is not None:
+            assert(order is None)
+            assert(sum(len(x) for x in bipartition) == len(self.labels))
+            self._is_bipartitite = True
+            self._bipartition = bipartition
+            self.order = _make_order_from_bipartition(bipartition)
+
+        elif order is not None:
             assert(order.shape[0] == len(self.labels))
             self.order = order
+
             if np.all(self.order == 0):
                 self._is_unordered = True
-            else:
-                self._is_unordered = False
+
+            if _is_bipartitite_order(self.order):
+                self._is_bipartite = True
+                self._bipartition = _get_bipartition(self.order)
+
         else:
             self.order = np.zeros((self.size, self.size), dtype=np.int8)
             self._is_unordered = True
