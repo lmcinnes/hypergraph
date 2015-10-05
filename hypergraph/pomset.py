@@ -468,6 +468,9 @@ class POMSet (object):
         del self.order
         self.order = new_order
 
+        self._is_bipartite = False
+        self._bipartition = None
+
     def add_dependency(self, from_label, to_label, from_index=0, to_index=0):
         """Add a new dependency relation to the POMSet. This states that
         `from_label` is strictly less than `to_label`. All other relations
@@ -503,7 +506,15 @@ class POMSet (object):
 
         self.order[from_label_index, self._indices_strictly_above(to_label, to_index)] = -1
         self.order[to_label_index, self._indices_strictly_below(from_label, from_index)] = 1
+
         self._is_unordered = False
+
+        if _is_bipartitite_order(self.order):
+            self._is_bipartite = True
+            self._bipartition = _get_bipartition(self.order)
+        else:
+            self._is_bipartite = False
+            self._bipartition = None
 
     def add_labels_from(self, new_label_list):
         """
@@ -529,6 +540,9 @@ class POMSet (object):
         new_order[:-1][:-1] = self.order
         del self.order
         self.order = new_order
+
+        self._is_bipartite = False
+        self._bipartition = None
 
     def add_dependencies_from(self, new_dependencies_list):
         """Add a number of new dependency relations from an iterable
@@ -601,3 +615,10 @@ class POMSet (object):
 
         if np.all(self.order == 0):
             self._is_unordered = True
+
+        if _is_bipartitite_order(self.order):
+            self._is_bipartite = True
+            self._bipartition = _get_bipartition(self.order)
+        else:
+            self._is_bipartite = False
+            self._bipartition = None
