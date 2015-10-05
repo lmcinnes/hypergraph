@@ -111,7 +111,7 @@ class Hypergraph (object):
     @property
     def networkx_undirected_cliquification(self):
         """Return a NetworkX graph derived from the hypergraph by
-        converting all hyperegdes into graph cliques.
+        converting all hyperedges into graph cliques.
 
         Returns
         -------
