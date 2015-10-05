@@ -8,8 +8,10 @@ hypergraph.hypergraph: Basic hypergraph class.
 
 import networkx as nx
 import itertools as itr
+import numpy as np
 
 from collections import Counter, defaultdict
+from .pomset import POMSet
 
 class Hypergraph (object):
 
@@ -19,33 +21,35 @@ class Hypergraph (object):
     def __init__(self, nodes=None):
         if nodes is not None:
             for node in nodes:
-                self.nodes[node] = POMSet([])
+                self.node[node] = POMSet([])
 
+    @property
     def nodes(self):
-        '''Return a list (or iterable in python3) of the node
+        """Return a list (or iterable in python3) of the node
         objects of the hypergraph.
-        '''
+        """
         return self.node.keys()
 
+    @property
     def edges(self):
-        '''Return a list (or iterable in python3) of the edge
+        """Return a list (or iterable in python3) of the edge
         objects of the hypergraph.
-        '''
+        """
         return self.edge.keys()
 
     def add_node(self, new_node):
-        '''Add a new node to the hypergraph.
+        """Add a new node to the hypergraph.
 
         Parameters
         ----------
 
         new_node : object
             The new node to add to the hypergraph
-        '''
+        """
         self.node[new_node] = POMSet([])
 
     def add_edge(self, new_edge, edge_labels, edge_order=None):
-        '''Add a new edge to the hypergraph.
+        """Add a new edge to the hypergraph.
 
         Parameters
         ----------
@@ -61,7 +65,7 @@ class Hypergraph (object):
             The POMSET order of the edge, or None. If None the
             edge will be undirected (but can have dependencies added).
             (default None)
-        '''
+        """
         self.edge[new_edge] = POMSet(edge_labels, edge_order)
 
         for node in edge_labels:
@@ -69,8 +73,9 @@ class Hypergraph (object):
                 self.add_node(node)
             self.node[node].add_label(new_edge)
 
+    @property
     def dual(self):
-        '''Return a new hypergraph that is the dual of the current
+        """Return a new hypergraph that is the dual of the current
         hypergraph.
 
         Returns
@@ -78,14 +83,15 @@ class Hypergraph (object):
 
         dual : Hypergraph
             The dual of the hypergraph.
-        '''
+        """
         result = Hypergraph()
         result.node = self.edge.copy()
         result.edge = self.node.copy()
         return result
 
+    @property
     def networkx_bipartite_representation(self):
-        '''Return a NetworkX graph of the bipartite representation of the 
+        """Return a NetworkX graph of the bipartite representation of the
         hypergraph.
 
         Returns
@@ -93,17 +99,18 @@ class Hypergraph (object):
 
         graph : NetworkX Graph
             The bipartite representation graph.
-        '''
+        """
         result = nx.Graph()
-        result.add_nodes_from(self.nodes() + self.edges())
+        result.add_nodes_from(self.nodes + self.edges)
         for edge in self.edges:
             for label in self.edge[edge].labels:
                 result.add_edge(edge, label)
 
         return result
 
+    @property
     def networkx_undirected_cliquification(self):
-        '''Return a NetworkX graph derived from the hypergraph by
+        """Return a NetworkX graph derived from the hypergraph by
         converting all hyperegdes into graph cliques.
 
         Returns
@@ -111,17 +118,18 @@ class Hypergraph (object):
 
         graph : NetworkX Graph
             The cliquified graph.
-        '''
+        """
         result = nx.Graph()
-        result.add_nodes_from(self.nodes())
+        result.add_nodes_from(self.nodes)
         for edge in self.edge:
             for n1, n2 in itr.combinations(self.edge[edge].labels, 2):
                 result.add_edge(n1, n2)
 
         return result
 
+    @property
     def networkx_weakly_directed_cliquification(self):
-        '''Return a NetworkX graph derived from the hypergraph by 
+        """Return a NetworkX graph derived from the hypergraph by
         converting hypergraph edges into graph cliques weakly respecting
         directedness  of hyperedges.
 
@@ -134,9 +142,9 @@ class Hypergraph (object):
 
         graph : NetworkX Graph
             The cliquified graph.
-        '''
+        """
         result = nx.Graph()
-        result.add_nodes_from(self.nodes())
+        result.add_nodes_from(self.nodes)
         for edge in self.edge:
             for n1 in self.edge[edge].support:
                 for n1_index in range(self.edge[edge].multiplicity(n1)):
@@ -145,8 +153,9 @@ class Hypergraph (object):
 
         return result
 
+    @property
     def networkx_strictly_directed_cliquification(self):
-        '''Return a NetworkX graph derived from the hypergraph by 
+        """Return a NetworkX graph derived from the hypergraph by
         converting hypergraph edges into graph cliques strictly respecting
         directedness  of hyperedges.
 
@@ -159,9 +168,9 @@ class Hypergraph (object):
 
         graph : NetworkX Graph
             The cliquified graph.
-        '''
+        """
         result = nx.Graph()
-        result.add_nodes_from(self.nodes())
+        result.add_nodes_from(self.nodes)
         for edge in self.edge:
             for n1 in self.edge[edge].support:
                 for n1_index in range(self.edge[edge].multiplicity(n1)):
@@ -170,27 +179,28 @@ class Hypergraph (object):
 
         return result
 
+    @property
     def undirected_size_distribution_matrix(self):
-    	'''Return a matrix of size distributions (per node) where the
-    	(i, j)th entry is number of nodes with i edges of size j
-    	incident on the node.
+        """Return a matrix of size distributions (per node) where the
+        (i, j)th entry is number of nodes with i edges of size j
+        incident on the node.
 
-    	Returns
-    	-------
+        Returns
+        -------
 
-    	dist_matrix : numpy ndarray
-    		The size distribution matrix
-    	'''
-    	result_dict = defaultdict(int)
-    	for node in self.nodes():
-    		sizes = Counter(self.edge[e].size for e in self.node[node].labels)
-    		for i in sizes:
-    			j = sizes[i]
-    			result_dict[(i,j)] += 1
+        dist_matrix : numpy ndarray
+            The size distribution matrix
+        """
+        result_dict = defaultdict(int)
+        for node in self.nodes:
+            sizes = Counter(self.edge[e].size for e in self.node[node].labels)
+            for i in sizes:
+                j = sizes[i]
+                result_dict[(i, j)] += 1
 
-    	matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
-    	result = np.zeros(matrix_dimensions, dtype=int)
-    	for (i, j), count in result_dict.items():
-    		result[i,j] = count
+        matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+        result = np.zeros(matrix_dimensions, dtype=int)
+        for (i, j), count in result_dict.items():
+            result[i, j] = count
 
-    	return result
+        return result
