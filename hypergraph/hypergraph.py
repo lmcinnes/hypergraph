@@ -292,7 +292,7 @@ class Hypergraph(object):
 
         return result
 
-     @property
+    @property
     def strictly_directed_out_size_distribution(self):
         """Return a matrix of size distributions (per node) where
         the (i, j)th entry is the number of nodes with i edges of
@@ -322,7 +322,7 @@ class Hypergraph(object):
 
         return result
 
-     @property
+    @property
     def strictly_directed_in_size_distribution(self):
         """Return a matrix of size distributions (per node) where
         the (i, j)th entry is the number of nodes with i edges of
