@@ -13,8 +13,8 @@ import numpy as np
 from collections import Counter, defaultdict
 from .pomset import POMSet
 
-class Hypergraph (object):
 
+class Hypergraph(object):
     node = {}
     edge = {}
 
@@ -179,6 +179,33 @@ class Hypergraph (object):
 
         return result
 
+    def _bfs_recursion(self, search_root_list, directed='undirected'):
+        next_layer = []
+        for node in search_root_list:
+            for e in self.node[node]:
+                if directed == 'undirected':
+                    next_layer.extend(self.edge[e].labels)
+                elif directed == 'weakly':
+                    next_layer.extend(self.edge[e].weakly_above(node))
+                elif directed == 'strictly':
+                    next_layer.extend(self.edge[e].strictly_above(node))
+                else:
+                    ValueError('Directedness must be one of "undirected", weakly", "strictly"')
+
+        if len(next_layer) > 0:
+            result = [next_layer, [self._bfs_recursion(next_layer, directed=directed)]]
+        else:
+            result = [next_layer]
+
+        return result
+
+    def breadth_first_search(self, root, directed='undirected'):
+        """Return a nested list representing the breadth first search of the
+        hypergraph beginning at node `root`.
+        """
+        result = self._bfs_recursion([root], directed=directed)
+        return result
+
     @property
     def undirected_size_distribution_matrix(self):
         """Return a matrix of size distributions (per node) where the
@@ -204,3 +231,124 @@ class Hypergraph (object):
             result[i, j] = count
 
         return result
+
+    @property
+    def weakly_directed_out_size_distribution(self):
+        """Return a matrix of size distributions (per node) where
+        the (i, j)th entry is the number of nodes with i edges of
+        out size (number of elements weakly above) j incident on
+        the node.
+
+        Returns
+        -------
+
+        dist_matrix : numpy ndarray
+            The size distribution matrix
+        """
+        result_dict = defaultdict(int)
+        for node in self.nodes:
+            for e in self.node[node]:
+                for n1 in self.edge[e].support:
+                    for n1_index in range(self.edge[e].multiplicity(n1)):
+                        sizes = Counter(len(self.edge[e].weakly_above(n1, n1_index)))
+                        for i in sizes:
+                            j = sizes[i]
+                            result_dict[(i, j)] += 1
+
+        matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+        result = np.zeros(matrix_dimensions, dtype=int)
+        for (i, j), count in result_dict.items():
+            result[i, j] = count
+
+        return result
+
+    @property
+    def weakly_directed_in_size_distribution(self):
+        """Return a matrix of size distributions (per node) where
+        the (i, j)th entry is the number of nodes with i edges of
+        out size (number of elements weakly below) j incident on
+        the node.
+
+        Returns
+        -------
+
+        dist_matrix : numpy ndarray
+            The size distribution matrix
+        """
+        result_dict = defaultdict(int)
+        for node in self.nodes:
+            for e in self.node[node]:
+                for n1 in self.edge[e].support:
+                    for n1_index in range(self.edge[e].multiplicity(n1)):
+                        sizes = Counter(len(self.edge[e].weakly_below(n1, n1_index)))
+                        for i in sizes:
+                            j = sizes[i]
+                            result_dict[(i, j)] += 1
+
+        matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+        result = np.zeros(matrix_dimensions, dtype=int)
+        for (i, j), count in result_dict.items():
+            result[i, j] = count
+
+        return result
+
+     @property
+    def strictly_directed_out_size_distribution(self):
+        """Return a matrix of size distributions (per node) where
+        the (i, j)th entry is the number of nodes with i edges of
+        out size (number of elements strictly above) j incident on
+        the node.
+
+        Returns
+        -------
+
+        dist_matrix : numpy ndarray
+            The size distribution matrix
+        """
+        result_dict = defaultdict(int)
+        for node in self.nodes:
+            for e in self.node[node]:
+                for n1 in self.edge[e].support:
+                    for n1_index in range(self.edge[e].multiplicity(n1)):
+                        sizes = Counter(len(self.edge[e].strictly_above(n1, n1_index)))
+                        for i in sizes:
+                            j = sizes[i]
+                            result_dict[(i, j)] += 1
+
+        matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+        result = np.zeros(matrix_dimensions, dtype=int)
+        for (i, j), count in result_dict.items():
+            result[i, j] = count
+
+        return result
+
+     @property
+    def strictly_directed_in_size_distribution(self):
+        """Return a matrix of size distributions (per node) where
+        the (i, j)th entry is the number of nodes with i edges of
+        out size (number of elements strictly below) j incident on
+        the node.
+
+        Returns
+        -------
+
+        dist_matrix : numpy ndarray
+            The size distribution matrix
+        """
+        result_dict = defaultdict(int)
+        for node in self.nodes:
+            for e in self.node[node]:
+                for n1 in self.edge[e].support:
+                    for n1_index in range(self.edge[e].multiplicity(n1)):
+                        sizes = Counter(len(self.edge[e].strictly_below(n1, n1_index)))
+                        for i in sizes:
+                            j = sizes[i]
+                            result_dict[(i, j)] += 1
+
+        matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
+        result = np.zeros(matrix_dimensions, dtype=int)
+        for (i, j), count in result_dict.items():
+            result[i, j] = count
+
+        return result
+
