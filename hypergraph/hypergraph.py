@@ -46,12 +46,41 @@ class Hypergraph(object):
         return self.edge.keys()
 
     def neighbors(self, node):
+        """Get a set of neighboring nodes.
+
+        Parameters
+        ----------
+
+        node : object
+            The node to find the neighbors of.
+
+        Returns
+        -------
+
+        neighbors : set
+            A set of all nodes neighboring the queries node.
+        """
         result = set([])
         for edge in self.node[node]:
             result.update(self.edge[edge].labels)
         return result
 
     def weak_predecessors(self, node):
+        """GGet a set of neighboring nodes weakly below the current node
+        in any incident edges.
+
+        Parameters
+        ----------
+
+        node : object
+            The node to find the neighbors of.
+
+        Returns
+        -------
+
+        neighbors : set
+            A set of all nodes that are weak predecessors of the queries node.
+        """
         result = set([])
         for edge in self.node[node]:
             for node_index in range(self.edge[edge].multiplcity()):
@@ -59,6 +88,21 @@ class Hypergraph(object):
         return result
 
     def weak_successors(self, node):
+        """Get a set of neighboring nodes weakly above the current node
+        in any incident edges.
+
+        Parameters
+        ----------
+
+        node : object
+            The node to find the neighbors of.
+
+        Returns
+        -------
+
+        neighbors : set
+            A set of all nodes that are weak successors of the queries node.
+        """
         result = set([])
         for edge in self.node[node]:
             for node_index in range(self.edge[edge].multiplcity()):
@@ -67,6 +111,21 @@ class Hypergraph(object):
 
 
     def strict_predecessors(self, node):
+        """Get a set of neighboring nodes strictly below the current node
+        in any incident edges.
+
+        Parameters
+        ----------
+
+        node : object
+            The node to find the neighbors of.
+
+        Returns
+        -------
+
+        neighbors : set
+            A set of all nodes that are predecessors to the queries node.
+        """
         result = set([])
         for edge in self.node[node]:
             for node_index in range(self.edge[edge].multiplcity()):
@@ -75,6 +134,21 @@ class Hypergraph(object):
 
 
     def strict_successors(self, node):
+        """Get a set of neighboring nodes strictly above the current node
+        in any incident edges.
+
+        Parameters
+        ----------
+
+        node : object
+            The node to find the neighbors of.
+
+        Returns
+        -------
+
+        neighbors : set
+            A set of all nodes that are successors to the queries node.
+        """
         result = set([])
         for edge in self.node[node]:
             for node_index in range(self.edge[edge].multiplcity()):
