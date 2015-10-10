@@ -15,6 +15,14 @@ from .pomset import POMSet
 
 
 class Hypergraph(object):
+    """
+    A directed hypergraph consisting of nodes as edges. Each node or edge
+    is an arbitrary python object, and associated to each node or edge,
+    via the `node` and `edge` dictionaries, is a `POMSet` which provides
+    a partially ordered multiset of either the nodes contained in an edge,
+    or the edges incident upon a node.
+    """
+
     node = {}
     edge = {}
 
@@ -36,6 +44,43 @@ class Hypergraph(object):
         objects of the hypergraph.
         """
         return self.edge.keys()
+
+    def neighbors(self, node):
+        result = set([])
+        for edge in self.node[node]:
+            result.update(self.edge[edge].labels)
+        return result
+
+    def weak_predecessors(self, node):
+        result = set([])
+        for edge in self.node[node]:
+            for node_index in range(self.edge[edge].multiplcity()):
+                result.update(self.edge[edge].weakly_below(node, node_index))
+        return result
+
+    def weak_successors(self, node):
+        result = set([])
+        for edge in self.node[node]:
+            for node_index in range(self.edge[edge].multiplcity()):
+                result.update(self.edge[edge].weakly_above(node, node_index))
+        return result
+
+
+    def strict_predecessors(self, node):
+        result = set([])
+        for edge in self.node[node]:
+            for node_index in range(self.edge[edge].multiplcity()):
+                result.update(self.edge[edge].strictly_below(node, node_index))
+        return result
+
+
+    def strict_successors(self, node):
+        result = set([])
+        for edge in self.node[node]:
+            for node_index in range(self.edge[edge].multiplcity()):
+                result.update(self.edge[edge].strictly_above(node, node_index))
+        return result
+
 
     def add_node(self, new_node):
         """Add a new node to the hypergraph.
@@ -203,7 +248,7 @@ class Hypergraph(object):
         """Return a nested list representing the breadth first search of the
         hypergraph beginning at node `root`.
         """
-        result = self._bfs_recursion([root], directed=directed)
+        result = [[root], self._bfs_recursion([root], directed=directed)]
         return result
 
     @property
@@ -248,12 +293,11 @@ class Hypergraph(object):
         result_dict = defaultdict(int)
         for node in self.nodes:
             for e in self.node[node]:
-                for n1 in self.edge[e].support:
-                    for n1_index in range(self.edge[e].multiplicity(n1)):
-                        sizes = Counter(len(self.edge[e].weakly_above(n1, n1_index)))
-                        for i in sizes:
-                            j = sizes[i]
-                            result_dict[(i, j)] += 1
+                for node_index in range(self.edge[e].multiplicity(node)):
+                    sizes = Counter(len(self.edge[e].weakly_above(node, node_index)))
+                    for i in sizes:
+                        j = sizes[i]
+                        result_dict[(i, j)] += 1
 
         matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
         result = np.zeros(matrix_dimensions, dtype=int)
@@ -278,12 +322,11 @@ class Hypergraph(object):
         result_dict = defaultdict(int)
         for node in self.nodes:
             for e in self.node[node]:
-                for n1 in self.edge[e].support:
-                    for n1_index in range(self.edge[e].multiplicity(n1)):
-                        sizes = Counter(len(self.edge[e].weakly_below(n1, n1_index)))
-                        for i in sizes:
-                            j = sizes[i]
-                            result_dict[(i, j)] += 1
+                for node_index in range(self.edge[e].multiplicity(node)):
+                    sizes = Counter(len(self.edge[e].weakly_below(node, node_index)))
+                    for i in sizes:
+                        j = sizes[i]
+                        result_dict[(i, j)] += 1
 
         matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
         result = np.zeros(matrix_dimensions, dtype=int)
@@ -308,12 +351,11 @@ class Hypergraph(object):
         result_dict = defaultdict(int)
         for node in self.nodes:
             for e in self.node[node]:
-                for n1 in self.edge[e].support:
-                    for n1_index in range(self.edge[e].multiplicity(n1)):
-                        sizes = Counter(len(self.edge[e].strictly_above(n1, n1_index)))
-                        for i in sizes:
-                            j = sizes[i]
-                            result_dict[(i, j)] += 1
+                for node_index in range(self.edge[e].multiplicity(node)):
+                    sizes = Counter(len(self.edge[e].strictly_above(node, node_index)))
+                    for i in sizes:
+                        j = sizes[i]
+                        result_dict[(i, j)] += 1
 
         matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
         result = np.zeros(matrix_dimensions, dtype=int)
@@ -338,12 +380,11 @@ class Hypergraph(object):
         result_dict = defaultdict(int)
         for node in self.nodes:
             for e in self.node[node]:
-                for n1 in self.edge[e].support:
-                    for n1_index in range(self.edge[e].multiplicity(n1)):
-                        sizes = Counter(len(self.edge[e].strictly_below(n1, n1_index)))
-                        for i in sizes:
-                            j = sizes[i]
-                            result_dict[(i, j)] += 1
+                for node_index in range(self.edge[e].multiplicity(node)):
+                    sizes = Counter(len(self.edge[e].strictly_below(node, node_index)))
+                    for i in sizes:
+                        j = sizes[i]
+                        result_dict[(i, j)] += 1
 
         matrix_dimensions = np.array(result_dict.keys()).max(axis=0)
         result = np.zeros(matrix_dimensions, dtype=int)
