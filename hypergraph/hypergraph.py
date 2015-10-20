@@ -10,6 +10,8 @@ import networkx as nx
 import itertools as itr
 import numpy as np
 
+from warnings import warn
+
 from collections import Counter, defaultdict
 from .pomset import POMSet
 
@@ -21,6 +23,28 @@ class Hypergraph(object):
     via the `node` and `edge` dictionaries, is a `POMSet` which provides
     a partially ordered multiset of either the nodes contained in an edge,
     or the edges incident upon a node.
+
+    Parameters
+    ----------
+
+    nodes : iterable, optional
+        An iterable of nodes to initialize the hypergraph with, or None.
+        (default None)
+
+    Attributes
+    ----------
+
+    node : dict
+        A dictionary mapping each node object to its associated POMSet.
+
+    edge : dict
+        A dictionary mapping each edge object to its associated POMSet.
+
+    nodes : iterable
+        An iterable of all the node objects in the hypergraph.
+
+    edges : iterable
+        An iterable of all the edge objects in the hypergraph.
     """
 
     node = {}
@@ -467,3 +491,7 @@ class Hypergraph(object):
 
         return result
 
+    @property
+    def networkx_flag_digraph(self):
+        warn('Not implemented yet!')
+        return None

@@ -464,7 +464,8 @@ class POMSet (object):
         self.cardinality = len(self.support)
 
         new_order = np.zeros((self.size, self.size), dtype=np.int8)
-        new_order[:-1][:-1] = self.order
+        if self.order.shape[0] > 0:
+            new_order[:-1][:-1] = self.order
         del self.order
         self.order = new_order
 
