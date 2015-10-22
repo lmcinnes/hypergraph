@@ -58,6 +58,9 @@ class POMSet (object):
 
         if labels is not None:
             self.labels = np.array(labels, dtype=object)
+        elif bipartition is not None:
+            self.labels = np.hstack([np.array(bipartition[0]),
+                                     np.array(bipartition[1])])
         else:
             self.labels = np.array([], dtype=object)
 
@@ -465,7 +468,7 @@ class POMSet (object):
 
         new_order = np.zeros((self.size, self.size), dtype=np.int8)
         if self.order.shape[0] > 0:
-            new_order[:-1][:-1] = self.order
+            new_order[:-1][:,:-1] = self.order
         del self.order
         self.order = new_order
 
@@ -538,7 +541,7 @@ class POMSet (object):
         self.cardinality = len(self.support)
 
         new_order = np.zeros((self.size, self.size), dtype=np.int8)
-        new_order[:-1][:-1] = self.order
+        new_order[:-1][:,:-1] = self.order
         del self.order
         self.order = new_order
 

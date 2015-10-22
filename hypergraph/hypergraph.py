@@ -49,25 +49,37 @@ class Hypergraph(object):
 
     node = {}
     edge = {}
+    relation = {}
 
     def __init__(self, nodes=None):
         if nodes is not None:
             for node in nodes:
                 self.node[node] = POMSet([])
+                self.relation[self.node[node]] = node
 
-    @property
-    def nodes(self):
+    def node_objects(self):
         """Return a list (or iterable in python3) of the node
         objects of the hypergraph.
         """
         return self.node.keys()
 
-    @property
-    def edges(self):
+    def edge_objects(self):
         """Return a list (or iterable in python3) of the edge
         objects of the hypergraph.
         """
         return self.edge.keys()
+
+    def node_relations(self):
+        """Return a list (or iterable in python3) of the node
+        objects of the hypergraph.
+        """
+        return self.node.values()
+
+    def edge_relations(self):
+        """Return a list (or iterable in python3) of the edge
+        objects of the hypergraph.
+        """
+        return self.edge.values()
 
     def neighbors(self, node):
         """Get a set of neighboring nodes.
@@ -190,6 +202,7 @@ class Hypergraph(object):
             The new node to add to the hypergraph
         """
         self.node[new_node] = POMSet([])
+        self.relation[self.node[new_node]] = new_node
 
     def add_edge(self, new_edge, edge_labels, edge_order=None):
         """Add a new edge to the hypergraph.
@@ -210,11 +223,40 @@ class Hypergraph(object):
             (default None)
         """
         self.edge[new_edge] = POMSet(edge_labels, edge_order)
+        self.relation[self.edge[new_edge]] = new_edge
 
         for node in edge_labels:
             if node not in self.nodes:
                 self.add_node(node)
             self.node[node].add_label(new_edge)
+
+    def add_bipartition_edge(self, new_edge, label_bipartition):
+        """Add a new edge where the order is a bipartition into
+        lower and upper elements.
+
+        Parameters
+        ----------
+        new_edge : object
+            The edge object to add to the hypergraph.
+
+        label_bipartition : list or tuple of iterables
+            A list or tuple with two elements. The first is an iterable
+            of all the lower labels. The second is an iterable of all the
+            upper labels.
+        """
+        self.edge[new_edge] = POMSet(bipartition=label_bipartition)
+        self.relation[self.edge[new_edge]] = new_edge
+
+        for node in label_bipartition[0]:
+            if node not in self.nodes:
+                self.add_node(node)
+            self.node[node].add_label(new_edge)
+
+        for node in label_bipartition[1]:
+            if node not in self.nodes:
+                self.add_node(node)
+            self.node[node].add_label(new_edge)
+
 
     @property
     def dual(self):
