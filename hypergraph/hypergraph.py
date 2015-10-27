@@ -51,7 +51,10 @@ class Hypergraph(object):
     edge = {}
     relation = {}
 
-    def __init__(self, nodes=None):
+    def __init__(self, nodes=None, default_node_order='none'):
+        if default_node_order not in ('none', 'total'):
+            raise ValueError('Default node order must be one of: none, total')
+        self.default_node_order = default_node_order
         if nodes is not None:
             for node in nodes:
                 self.node[node] = POMSet([])
@@ -226,9 +229,12 @@ class Hypergraph(object):
         self.relation[self.edge[new_edge]] = new_edge
 
         for node in edge_labels:
-            if node not in self.nodes:
+            if node not in self.node:
                 self.add_node(node)
             self.node[node].add_label(new_edge)
+            if self.default_node_order == 'total':
+                pass
+
 
     def add_bipartition_edge(self, new_edge, label_bipartition):
         """Add a new edge where the order is a bipartition into
