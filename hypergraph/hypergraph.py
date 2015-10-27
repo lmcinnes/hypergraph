@@ -233,7 +233,12 @@ class Hypergraph(object):
                 self.add_node(node)
             self.node[node].add_label(new_edge)
             if self.default_node_order == 'total':
-                pass
+                last_label = self.node[node].labels[-2]
+                last_label_multiplicity = self.node[node].multiplicity(last_label)
+                new_edge_multiplicity = self.node[node].multiplicity(new_edge)
+                self.node[node].add_dependency(last_label, new_edge,
+                                               from_index=last_label_multiplicity - 1,
+                                               to_index = new_edge_multiplicity - 1)
 
 
     def add_bipartition_edge(self, new_edge, label_bipartition):
