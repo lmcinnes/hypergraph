@@ -31,6 +31,10 @@ class Hypergraph(object):
         An iterable of nodes to initialize the hypergraph with, or None.
         (default None)
 
+    default_node_order : string, optional
+        A string (either 'none', default or 'total') specifying the ordering
+        of the POMSets within the hypergraph
+
     Attributes
     ----------
 
